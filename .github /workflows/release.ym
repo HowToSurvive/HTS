@@ -1,0 +1,24 @@
+name: Build on Windows
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Windows build tools
+      uses: actions/setup-toolkit@v2
+      with:
+        tools: 'powershell, msbuild, visualstudio'
+
+    - name: Build project
+      run: |
+        msbuild /t:build /p:Configuration=Release
