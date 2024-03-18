@@ -1,24 +1,34 @@
-name: Build on Windows
+name: Build and Release
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main  # Set the branch name where the workflow will run
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-latest  # Set the operating system for the job
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Windows build tools
-      uses: actions/setup-toolkit@v2
+    - name: Set up C++ toolchain
+      uses: actions/setup-toolchain@v1
       with:
-        tools: 'powershell, msbuild, visualstudio'
+        toolchain-id: 'msvc-clang-x64'
 
-    - name: Build project
+    - name: Build and Test
       run: |
-        msbuild /t:build /p:Configuration=Release
+        echo "build ${{ github.run_number }}"
+        echo "Hello, World!"
+        # Add your build and test commands here
+
+    - name: Publish Release
+      if: github.ref == 'refs/tags/v*' # This will only run if the workflow is triggered by a tag creation
+      uses: actions/upload-release-asset@v1
+      with:
+        upload-url: ${{ github.repository_upload_url }}
+        asset-path: build/my-app-${{ github.run_number }}.exe
+        asset-name: my-app-${{ github.run_number }}.exe
+        asset-content-type: application/octet-stream
